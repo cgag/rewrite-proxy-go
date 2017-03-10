@@ -30,21 +30,21 @@ func proxy(w http.ResponseWriter, r *http.Request) {
 	fatalIf(err)
 	tree, err := html.Parse(resp.Body)
 	fatalIf(err)
-	rewriteLinks(tree)
-	html.Render(w, tree)
-}
 
-func rewriteLinks(node *html.Node) {
 	targetUrl, err := url.Parse(target)
 	fatalIf(err)
 	targetHost := targetUrl.Host
+	rewriteLinks(tree, targetHost)
+	html.Render(w, tree)
+}
 
+func rewriteLinks(node *html.Node, targetHost string) {
 	if node == nil {
 		return
 	}
 
 	if node.Type == html.ElementNode && node.Data == "a" {
-		newAttr := make([]html.Attribute, 0)
+		newAttrs := make([]html.Attribute, 0)
 		for _, attr := range node.Attr {
 			if attr.Key == "href" {
 				url, err := url.Parse(attr.Val)
@@ -53,13 +53,13 @@ func rewriteLinks(node *html.Node) {
 					attr.Val = url.Path
 				}
 			}
-			newAttr = append(newAttr, attr)
+			newAttrs = append(newAttrs, attr)
 		}
-		node.Attr = newAttr
+		node.Attr = newAttrs
 	}
 
 	for n := node.FirstChild; n != nil; n = n.NextSibling {
-		rewriteLinks(n)
+		rewriteLinks(n, targetHost)
 	}
 }
 
