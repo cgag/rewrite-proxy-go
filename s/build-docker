@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "running go build"
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+echo "running docker build"
+docker build -t gcr.io/cgag-gke/worm-proxy .

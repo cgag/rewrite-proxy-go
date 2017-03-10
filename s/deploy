@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+
+s/build-docker
+gcloud docker -- push gcr.io/cgag-gke/worm-proxy
